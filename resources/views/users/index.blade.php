@@ -26,7 +26,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Fullname
                                     </th>
-                                    
+
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Email
                                     </th>
@@ -38,7 +38,7 @@
                                     </th>
                                     <th scope="col" class="relative px-6 py-3">
                                         <span class="sr-only">Edit</span>
-                                       
+
                                     </th>
                                     </tr>
                                 </thead>
@@ -55,7 +55,7 @@
                                         <div class="flex-shrink-0 h-10 w-10">
                                             {{ $user->username }}
                                         </div>
-                                        
+
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -71,8 +71,8 @@
                                         {{ $user->phone_number }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a> | 
-                                        <a href="#" class="text-indigo-600 hover:text-indigo-900">Delete</a>
+                                        <a href="{{ route('users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
+                                        <a href="#" class="text-indigo-600 hover:text-indigo-900 delete" data-id="{{ $user->id }}">Delete</a>
                                     </td>
                                     </tr>
                                     <?php $sn++ ?>
@@ -85,39 +85,49 @@
                             </div>
                         </div>
                     </div>
-  
-                    
+
+
                 </div>
             </div>
         </div>
-        <button class="px-6 py-2 text-white bg-blue-600 rounded shadow-xl" type="button">open
-            model</button>
-        <div class="absolute inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50">
-            <div class="max-w-sm p-6 bg-white divide-y divide-gray-500">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-2xl">Model Title</h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-    
+
+        <div class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center" id="modal-id">
+            <div class="relative w-auto my-6 mx-auto max-w-3xl">
+              <!--content-->
+              <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                <!--header-->
+                <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+
+                  <button class="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none" onclick="toggleModal('modal-id')">
+                    <span class="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
+                      ×
+                    </span>
+                  </button>
                 </div>
-                <div class="mt-4">
-                    <p class="mb-4 text-sm">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatibus
-                        qui
-                        nihil laborum
-                        quaerat blanditiis nemo explicabo voluptatum ea architecto corporis quo vitae, velit
-                        temporibus eaque quisquam in quis provident necessitatibus.</p>
-                    <button class="px-4 py-2 text-white bg-red-600 rounded">Cancel</button>
-                    <button class="px-4 py-2 text-white bg-green-600 rounded">Save</button>
+                <!--body-->
+                <div class="relative p-6 flex-auto">
+                  <form action="" method="POST">
+                      @csrf
+                      <input type="hidden" name="user_id" id="user_id" value="">
+                    <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                        are you sure you want to delete this record?
+                      </p>
+                  </form>
                 </div>
+                <!--footer-->
+                <div class="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+                  <button class="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button" id="close">
+                    No
+                  </button>
+                  <button class="bg-emerald-500 active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button" id="delete_user">
+                    Yes
+                  </button>
+                </div>
+              </div>
             </div>
-        </div>
-    </div>
-    
-        
-  
+          </div>
+
+
 </x-app-layout>
 
 {{-- <script>
@@ -128,3 +138,38 @@
       $('#deleteModal').modal('show');
   });
 </script> --}}
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" ></script>
+
+        <script>
+            $(document).on('click', '.delete', function(){
+
+                var id = $(this).data('id')
+
+                $('#user_id').val(id)
+
+                $('#modal-id').show()
+            })
+
+
+            $(document).on('click', '#close', function(){
+                $('#modal-id').hide()
+            })
+
+    $(document).on('click', '#delete_user', function(e) {
+        var id = $("#user_id").val()
+        $.ajax({
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            type: 'DELETE',
+            url: 'users/' + id,
+            data: {
+                // '_token': $('input[name=_token]').val(),
+                'id': id
+            },
+            success: function(data) {
+                window.location.reload();
+                }
+            });
+        });
+    </script>
+

@@ -163,6 +163,10 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        User::findOrFail($id)->delete();
+
+        Alert::success('Success Title', 'User Deleted Successfully');
+        return back();
+
     }
 }
